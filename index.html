@@ -2,26 +2,119 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>16. Yaşın Kutlu Olsun Eren! 🎉</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #0f172a;
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .glass {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
-<body>
-  <!-- src tırnaklarının içine Emergent'in sana verdiği önizleme linkini yapıştır -->
-  <iframe src="https://eren-birthday-blast.preview.emergentagent.com/"></iframe>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-amber-500 selection:text-slate-900 font-sans">
+
+  <!-- Arka Plan Müzik Player (Görünmez) -->
+  <iframe id="yt-player" class="hidden" src="https://www.youtube.com/embed/uvwZSnoxTE4?enablejsapi=1" allow="autoplay"></iframe>
+
+  <!-- AŞAMA 1: MEKTUP VE SÜRPRİZ -->
+  <div id="step-1" class="flex flex-col items-center text-center max-w-md w-full">
+    <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold px-4 py-1.5 rounded-full text-sm mb-6 animate-pulse shadow-lg shadow-amber-500/10">
+      🎉 16. Yaşın Kutlu Olsun Eren! 🎉
+    </div>
+    
+    <!-- Kapalı Zarf -->
+    <div id="envelope" onclick="openEnvelope()" class="cursor-pointer glass p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300 w-full animate-float group border-amber-500/20">
+      <div class="text-7xl mb-4 group-hover:scale-110 transition duration-300">💌</div>
+      <p class="font-bold text-xl text-slate-100">Sana Bir Mesaj Var!</p>
+      <p class="text-sm text-amber-400/80 mt-2">Tıkla ve Aç ✨</p>
+    </div>
+
+    <!-- Açılan Mektup -->
+    <div id="letter" class="hidden glass p-8 rounded-3xl border border-amber-500/40 shadow-2xl w-full text-center">
+      <p class="text-2xl font-bold text-amber-300 mb-6 leading-relaxed">
+        "Doğum günün kutlu olsun Eren, umarım aradığını bulursun :)"
+      </p>
+      <button onclick="goToStep2()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 px-6 rounded-2xl transition duration-200 shadow-lg shadow-amber-500/20 text-lg">
+        Devam Et ➡️
+      </button>
+    </div>
+  </div>
+
+  <!-- AŞAMA 2: FOTOĞRAF VE ESPRİLİ SEÇİM -->
+  <div id="step-2" class="hidden flex flex-col items-center text-center max-w-md w-full">
+    <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold px-4 py-1.5 rounded-full text-sm mb-6">
+      🎉 16. Yaşın Kutlu Olsun Eren! 🎉
+    </div>
+
+    <!-- Fotoğraf Kutusu -->
+    <div class="mb-6 overflow-hidden rounded-3xl border-2 border-slate-700/80 shadow-2xl w-full max-h-80 bg-slate-900 flex justify-center items-center">
+      <img src="foto.jpg" alt="Eren" class="object-cover w-full h-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/1e293b/f59e0b?text=Fotograf+Yuklenemedi';">
+    </div>
+
+    <p class="text-2xl font-extrabold mb-6 text-slate-100 leading-snug">
+      Pastaya oturur musun,<br><span class="text-amber-400">Yoksa yer misin? :))</span>
+    </p>
+
+    <!-- Seçenekler -->
+    <div class="flex flex-col sm:flex-row gap-3 w-full">
+      <button onclick="showAnswer('Ciddi olamazsın ama yinede Afiyet Olsun xD')" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 px-4 rounded-2xl transition duration-200 shadow-lg shadow-rose-600/20">
+        Pastaya Otururum 🎂
+      </button>
+      <button onclick="showAnswer('Göte giren şemsiye açılmazmış :D')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-2xl transition duration-200 shadow-lg shadow-emerald-600/20">
+        Pastayı Yerim 😋
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+    <div class="glass p-6 rounded-3xl border border-slate-700 text-center max-w-sm w-full shadow-2xl">
+      <p id="modal-text" class="text-xl font-bold text-amber-300 mb-6 leading-normal"></p>
+      <button onclick="closeModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200 border border-slate-600">
+        Kapat ✖️
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function openEnvelope() {
+      document.getElementById('envelope').classList.add('hidden');
+      document.getElementById('letter').classList.remove('hidden');
+      
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+
+      // Müzik çalmayı başlat
+      const iframe = document.getElementById('yt-player');
+      iframe.src += "&autoplay=1";
+    }
+
+    function goToStep2() {
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+    }
+
+    function showAnswer(msg) {
+      document.getElementById('modal-text').innerText = msg;
+      document.getElementById('modal').classList.remove('hidden');
+      confetti({ particleCount: 80, spread: 70 });
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
